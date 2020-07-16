@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>the-starter-of-zk</module>
+        <module>the-custom-ha-center</module>
     </modules>
 
 
