@@ -12,6 +12,7 @@
         <module>the-starter-of-zk</module>
         <module>the-custom-ha-center</module>
         <module>the-custom-distributed-lock</module>
+	    <module>the-starter-of-hdfs-api</module>
     </modules>
 
 
