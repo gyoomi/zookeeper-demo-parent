@@ -13,7 +13,7 @@
         <module>the-custom-ha-center</module>
         <module>the-custom-distributed-lock</module>
 	    <module>the-starter-of-hdfs-api</module>
-	    <module>the-priciple-of-hdfs</module>
+	    <module>the-principle-of-hdfs</module>
     </modules>
 
 
