@@ -1,10 +1,7 @@
 package com.gyoomi.hdfs.principle;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +36,8 @@ public class HdfsStreamTest
 	@Test
 	public void testUpload() throws Exception
 	{
-		FSDataOutputStream fsDataOutputStream = fs.create(new Path("/zyy.txt"), true);
-		FileInputStream fis = new FileInputStream("d://zyy.txt");
+		FSDataOutputStream fsDataOutputStream = fs.create(new Path("/admin.log"), true);
+		FileInputStream fis = new FileInputStream("d://admin.log");
 		IOUtils.copyBytes(fis, fsDataOutputStream, 1024 * 8);
 	}
 
@@ -80,6 +77,45 @@ public class HdfsStreamTest
 		FSDataInputStream dataInputStream = fs.open(new Path("/zyy.txt"));
 
 		IOUtils.copyBytes(dataInputStream, System.out, 1024);
+	}
+
+	/**
+	 * 按照最近的block进行读取
+	 */
+	@Test
+	public void testSpecialCat() throws Exception
+	{
+		FSDataInputStream fsDataInputStream = fs.open(new Path("/admin.log"));
+		// 1. 拿到这个文件的信息
+		FileStatus[] fileStatuses = fs.listStatus(new Path("/admin.log"));
+		// 2. 获取当前文件的所有block元数据
+		BlockLocation[] fileBlockLocations = fs.getFileBlockLocations(fileStatuses[0], 0L, fileStatuses[0].getLen());
+		// 3.1  第一个block的长度
+		long length = fileBlockLocations[0].getLength();
+		// 3.2 第一个block的起始偏移量
+		long offset = fileBlockLocations[0].getOffset();
+
+		// System.out.println("length: " + length);
+		// System.out.println("offset: " + offset);
+		// IOUtils.copyBytes(fsDataInputStream, System.out, (int)length);
+
+		byte[] buffer = new byte[4096];
+		FileOutputStream fos = new FileOutputStream(new File("d://1.log"));
+		while (fsDataInputStream.read(offset, buffer, 0, 4096) != -1)
+		{
+			fos.write(buffer);
+			offset += 4096;
+			if (offset >= length)
+			{
+				return;
+			}
+		}
+
+		fos.flush();
+		fos.close();
+		fsDataInputStream.close();
+
+		System.out.println("over");
 	}
 
 }
